@@ -157,6 +157,15 @@ Page({
   recordTakeMedicine: function (reminder) {
     var that = this;
 
+    // 续订配额（第一次弹窗勾"总是保持"后永不弹窗）
+    wx.requestSubscribeMessage({
+      tmplIds: [
+        'HBUcX64MIUMEnf-WPQiAuatrglxdIORe4Z03ZgNHGrg',
+        'yWIU75GOoaaRDI0eAzBRfZb8N5jOKDtKXj2PhLQ6xps',
+        '0atsTuJOmGeeKXpCDdzMJS4-1zQh6ZPK22N0AR0SukM'
+      ]
+    });
+
     api.addRecord({
       medicationId: reminder.medicationId,
       reminderId: reminder._id
@@ -240,6 +249,16 @@ Page({
     var that = this;
     var reminder = e.detail.reminder;
     haptic.light();
+
+    // 续订配额（第一次弹窗勾"总是保持"后永不弹窗）
+    wx.requestSubscribeMessage({
+      tmplIds: [
+        'HBUcX64MIUMEnf-WPQiAuatrglxdIORe4Z03ZgNHGrg',
+        'yWIU75GOoaaRDI0eAzBRfZb8N5jOKDtKXj2PhLQ6xps',
+        '0atsTuJOmGeeKXpCDdzMJS4-1zQh6ZPK22N0AR0SukM'
+      ]
+    });
+
     api.acknowledgeReminder(reminder._id).then(function () {
       that.loadData();
     });
