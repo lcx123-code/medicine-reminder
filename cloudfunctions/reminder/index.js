@@ -88,9 +88,34 @@ async function getTodayReminders(userId) {
     }
   }
 
-  // 自愈：检查并补建缺失提醒
+  // 获取所有活跃药品（供幽灵清理和自愈共用）
   var medsRes = await db.collection('medications')
     .where({ userId: userId, isActive: true }).get();
+  var medsMap = {};
+  for (var mi = 0; mi < medsRes.data.length; mi++) {
+    medsMap[medsRes.data[mi]._id] = medsRes.data[mi];
+  }
+
+  // 清理幽灵提醒：删除 timeStr 不在药品 times 数组中的提醒及其关联记录
+  for (var i = reminders.length - 1; i >= 0; i--) {
+    var med = medsMap[reminders[i].medicationId];
+    if (med && med.times && med.times.indexOf(reminders[i].timeStr) === -1) {
+      var ghostId = reminders[i]._id;
+      await db.collection('records').where({ reminderId: ghostId }).remove();
+      await db.collection('reminders').doc(ghostId).remove();
+      console.log('清理幽灵数据:', ghostId, 'timeStr:', reminders[i].timeStr);
+      reminders.splice(i, 1);
+    }
+  }
+
+  // 重建 existingMedIds（幽灵清理可能删了提醒）
+  existingMedIds = [];
+  for (var i = 0; i < reminders.length; i++) {
+    if (existingMedIds.indexOf(reminders[i].medicationId) === -1)
+      existingMedIds.push(reminders[i].medicationId);
+  }
+
+  // 自愈：检查并补建缺失提醒
   for (var mi = 0; mi < medsRes.data.length; mi++) {
     var med = medsRes.data[mi];
     if (!med.times || med.times.length === 0) continue;
