@@ -1,0 +1,28 @@
+<view class="reminder-card {{reminder.status}}">
+  <view class="card-left">
+    <view class="time-badge">
+      <text class="time-text">{{timeText}}</text>
+    </view>
+  </view>
+  
+  <view class="card-center">
+    <text class="medication-name">{{reminder.medicationName}}</text>
+    <text class="dosage-text">{{reminder.dosage}}</text>
+  </view>
+  
+  <view class="card-right">
+    <view 
+      class="status-btn {{reminder.status}}" 
+      wx:if="{{reminder.status === 'pending'}}"
+      bind:tap="onTapTake"
+    >
+      <text>服用</text>
+    </view>
+    <view class="status-btn completed" wx:elif="{{reminder.status === 'completed'}}">
+      <text>已服</text>
+    </view>
+    <view class="status-btn missed" wx:else>
+      <text>漏服</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,82 @@
+<view class="container">
+  <!-- 周期选择 -->
+  <view class="period-tabs">
+    <view class="period-tab {{period === 'week' ? 'active' : ''}}" bind:tap="onSelectPeriod" data-period="week">
+      <text>近7天</text>
+    </view>
+    <view class="period-tab {{period === 'month' ? 'active' : ''}}" bind:tap="onSelectPeriod" data-period="month">
+      <text>近30天</text>
+    </view>
+  </view>
+
+  <!-- 依从性统计 -->
+  <view class="stats-card">
+    <view class="card-title">服药依从性</view>
+    <view class="adherence-chart">
+      <view class="chart-center">
+        <text class="chart-value">{{stats.adherenceRate}}%</text>
+        <text class="chart-label">依从率</text>
+      </view>
+      <view class="chart-ring">
+        <view class="ring-fill" style="transform: rotate({{stats.adherenceRate * 3.6 - 90}}deg)"></view>
+      </view>
+      <view class="chart-status {{stats.adherenceRate >= 80 ? 'good' : stats.adherenceRate >= 50 ? 'normal' : 'bad'}}">
+        <text>{{stats.adherenceRate >= 80 ? '优秀' : stats.adherenceRate >= 50 ? '一般' : '需改进'}}</text>
+      </view>
+    </view>
+    <view class="stats-summary">
+      <view class="stat-item">
+        <text class="stat-value completed">{{stats.completed}}</text>
+        <text class="stat-label">已服</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value missed">{{stats.missed}}</text>
+        <text class="stat-label">漏服</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value pending">{{stats.pending}}</text>
+        <text class="stat-label">待服</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 每日统计 -->
+  <view class="stats-card" wx:if="{{stats.dailyStats.length > 0}}">
+    <view class="card-title">每日统计</view>
+    <view class="daily-chart">
+      <view class="chart-bar" wx:for="{{stats.dailyStats}}" wx:key="date">
+        <view class="bar-container">
+          <view class="bar-fill" style="height: {{item.total > 0 ? (item.completed / item.total * 100) : 0}}%"></view>
+        </view>
+        <text class="bar-label">{{item.shortDate}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 药品统计 -->
+  <view class="stats-card" wx:if="{{stats.medicationStats.length > 0}}">
+    <view class="card-title">药品统计</view>
+    <view class="medication-stats">
+      <view class="med-stat-item" wx:for="{{stats.medicationStats}}" wx:key="medicationId">
+        <view class="med-info">
+          <text class="med-name">{{item.medicationName}}</text>
+          <text class="med-rate {{item.adherenceRate >= 80 ? 'good' : item.adherenceRate >= 50 ? 'normal' : 'bad'}}">
+            {{item.adherenceRate}}%
+          </text>
+        </view>
+        <view class="med-progress">
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: {{item.adherenceRate}}%"></view>
+          </view>
+          <text class="progress-text">{{item.completed}}/{{item.total}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && stats.total === 0}}">
+    <text class="empty-text">暂无统计数据</text>
+    <text class="empty-subtext">开始服药后这里会显示统计信息</text>
+  </view>
+</view>

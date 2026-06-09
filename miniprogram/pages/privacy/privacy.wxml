@@ -1,0 +1,65 @@
+<view class="container">
+  <view class="policy-card">
+    <text class="policy-title">吃药提醒小程序 隐私协议</text>
+    <text class="policy-date">更新日期：2024年1月1日</text>
+    <text class="policy-date">生效日期：2024年1月1日</text>
+
+    <view class="policy-section">
+      <text class="section-title">一、引言</text>
+      <text class="section-text">欢迎使用"吃药提醒"小程序（以下简称"本小程序"）。本小程序由个人开发者运营，非常重视您的隐私保护。本隐私协议旨在向您说明我们如何收集、使用、存储和保护您的个人信息。</text>
+    </view>
+
+    <view class="policy-section">
+      <text class="section-title">二、我们收集的信息</text>
+      <text class="section-text">为提供吃药提醒服务，我们可能收集以下信息：</text>
+      <text class="section-text">1. 微信用户身份标识（OpenID）：用于区分不同用户，确保您的数据安全隔离。</text>
+      <text class="section-text">2. 药品信息：您主动添加的药品名称、剂量、频次、提醒时间、库存等，用于生成服药提醒。</text>
+      <text class="section-text">3. 服药记录：您的服药时间、状态等，用于统计分析。</text>
+    </view>
+
+    <view class="policy-section">
+      <text class="section-title">三、信息使用目的</text>
+      <text class="section-text">我们收集的信息仅用于以下目的：</text>
+      <text class="section-text">1. 提供核心功能：生成服药提醒、记录服药状态、库存管理。</text>
+      <text class="section-text">2. 数据统计分析：为您提供服药依从性统计报告。</text>
+      <text class="section-text">3. 消息推送：在您同意的前提下，通过订阅消息提醒您按时服药。</text>
+    </view>
+
+    <view class="policy-section">
+      <text class="section-title">四、信息存储与安全</text>
+      <text class="section-text">1. 您的数据存储在微信云开发环境中，受微信云安全保障。</text>
+      <text class="section-text">2. 我们采用严格的数据隔离机制，不同用户的数据互相隔离。</text>
+      <text class="section-text">3. 我们不会将您的数据用于商业目的或与第三方共享。</text>
+    </view>
+
+    <view class="policy-section">
+      <text class="section-title">五、信息共享</text>
+      <text class="section-text">我们不会主动将您的个人信息与任何第三方共享，以下情况除外：</text>
+      <text class="section-text">1. 获得您的明确同意后。</text>
+      <text class="section-text">2. 根据法律法规或政府主管部门的强制性要求。</text>
+    </view>
+
+    <view class="policy-section">
+      <text class="section-title">六、您的权利</text>
+      <text class="section-text">您有权：</text>
+      <text class="section-text">1. 访问和查看您在本小程序中的所有数据。</text>
+      <text class="section-text">2. 修改或删除您的药品信息和服药记录。</text>
+      <text class="section-text">3. 停止使用本小程序后，您的数据将不再被处理。</text>
+    </view>
+
+    <view class="policy-section">
+      <text class="section-title">七、未成年人保护</text>
+      <text class="section-text">本小程序面向所有年龄段用户。如果您是未满18周岁的未成年人，请在监护人的陪同下阅读本协议，并在监护人的同意下使用本小程序。</text>
+    </view>
+
+    <view class="policy-section">
+      <text class="section-title">八、协议更新</text>
+      <text class="section-text">我们可能会适时更新本隐私协议。更新后的协议将在本页面发布，请定期查阅。</text>
+    </view>
+
+    <view class="policy-section">
+      <text class="section-title">九、联系我们</text>
+      <text class="section-text">如您对本隐私协议有任何疑问，请通过小程序内反馈功能联系我们。</text>
+    </view>
+  </view>
+</view>

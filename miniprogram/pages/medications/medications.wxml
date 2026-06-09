@@ -1,0 +1,145 @@
+<view class="container">
+  <!-- 骨架屏加载状态 -->
+  <view class="skeleton" wx:if="{{loading}}">
+    <view class="skeleton-card" wx:for="{{3}}" wx:key="index">
+      <view class="skeleton-header">
+        <view class="skeleton-line skeleton-name"></view>
+        <view class="skeleton-line skeleton-tag"></view>
+      </view>
+      <view class="skeleton-body">
+        <view class="skeleton-line skeleton-info"></view>
+        <view class="skeleton-line skeleton-info"></view>
+        <view class="skeleton-line skeleton-info"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 正常内容 -->
+  <view class="content" wx:else>
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <view class="search-icon">
+        <text>搜索</text>
+      </view>
+      <input 
+        class="search-input" 
+        placeholder="搜索药品名称"
+        value="{{searchKeyword}}"
+        bindinput="onSearchInput"
+        confirm-type="search"
+      />
+      <view class="search-clear" wx:if="{{searchKeyword}}" bind:tap="onClearSearch">
+        <text>×</text>
+      </view>
+    </view>
+
+    <!-- 筛选标签 -->
+    <view class="filter-tabs">
+      <view class="filter-tab {{filterType === 'all' ? 'active' : ''}}" bind:tap="onFilterChange" data-type="all">
+        <text>全部</text>
+      </view>
+      <view class="filter-tab {{filterType === 'active' ? 'active' : ''}}" bind:tap="onFilterChange" data-type="active">
+        <text>启用中</text>
+      </view>
+      <view class="filter-tab {{filterType === 'inactive' ? 'active' : ''}}" bind:tap="onFilterChange" data-type="inactive">
+        <text>已停用</text>
+      </view>
+    </view>
+
+    <!-- 药品列表 -->
+    <view class="medication-list" wx:if="{{filteredMedications.length > 0}}">
+      <view class="medication-card-wrapper" wx:for="{{filteredMedications}}" wx:key="_id">
+        <!-- 左滑删除背景 -->
+        <view class="swipe-bg {{item.swipeX ? 'visible' : ''}}">
+          <view class="swipe-delete" bind:tap="onDelete" data-id="{{item._id}}" data-name="{{item.name}}">
+            <text>删除</text>
+          </view>
+        </view>
+        
+        <!-- 卡片内容 -->
+        <view class="medication-card {{item.isActive ? '' : 'inactive'}}" 
+          style="transform: translateX({{item.swipeX || 0}}rpx)"
+          bindtouchstart="onTouchStart" 
+          bindtouchmove="onTouchMove" 
+          bindtouchend="onTouchEnd"
+          data-index="{{index}}"
+          data-id="{{item._id}}"
+          data-name="{{item.name}}"
+        >
+          <view class="card-header">
+            <view class="med-name-status">
+              <text class="med-name">{{item.name}}</text>
+              <view class="status-tag {{item.isActive ? 'active' : 'inactive'}}">
+                {{item.isActive ? '启用中' : '已停用'}}
+              </view>
+            </view>
+            <view class="card-actions">
+              <view class="action-btn toggle {{item.isActive ? 'active' : 'inactive'}}" bind:tap="onToggleStatus" data-id="{{item._id}}" data-active="{{item.isActive}}">
+                <text>{{item.isActive ? '停用' : '启用'}}</text>
+              </view>
+              <view class="action-btn edit" bind:tap="onEdit" data-id="{{item._id}}">
+                <text>编辑</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="card-body">
+            <view class="info-row">
+              <text class="info-label">剂量</text>
+              <text class="info-value">{{item.dosage}}</text>
+            </view>
+            <view class="info-row">
+              <text class="info-label">频次</text>
+              <text class="info-value">{{item.frequency}}</text>
+            </view>
+            <view class="info-row">
+              <text class="info-label">提醒</text>
+              <text class="info-value">{{item.timesText}}</text>
+            </view>
+            <view class="info-row" wx:if="{{item.notes}}">
+              <text class="info-label">备注</text>
+              <text class="info-value notes">{{item.notes}}</text>
+            </view>
+          </view>
+
+          <view class="card-footer">
+            <view class="stock-info" wx:if="{{item.stockEnabled !== false}}">
+              <text class="stock-label">库存</text>
+              <text class="stock-value {{item.stock <= item.stockWarning ? 'warning' : ''}}">
+                {{item.stock}} {{item.stockUnit}}
+              </text>
+            </view>
+            <view class="cycle-info" wx:if="{{item.duration > 0}}">
+              <text class="cycle-label">周期</text>
+              <text class="cycle-value">{{item.duration}}天</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+  <!-- 搜索无结果 -->
+  <view class="empty-state" wx:if="{{filteredMedications.length === 0 && medications.length > 0}}">
+    <view class="empty-icon-wrapper">
+      <text class="empty-icon-text">?</text>
+    </view>
+    <text class="empty-text">未找到匹配的药品</text>
+    <text class="empty-subtext">请尝试其他搜索关键词</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{medications.length === 0}}">
+    <view class="empty-icon-wrapper">
+      <text class="empty-icon-text">+</text>
+    </view>
+    <text class="empty-text">暂无药品</text>
+    <text class="empty-subtext">点击下方按钮添加您的第一个药品</text>
+  </view>
+
+    <!-- 添加按钮 -->
+    <view class="add-btn" bind:tap="onAdd">
+      <text class="add-icon">+</text>
+      <text class="add-text">添加药品</text>
+    </view>
+  </view>
+</view>

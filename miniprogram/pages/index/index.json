@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "reminder-card": "/components/reminderCard/reminderCard"
+  },
+  "navigationBarTitleText": "今日提醒"
+}

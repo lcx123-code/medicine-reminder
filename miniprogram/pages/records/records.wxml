@@ -1,0 +1,65 @@
+<view class="container">
+  <!-- 日期选择 -->
+  <view class="date-picker">
+    <view class="date-nav" bind:tap="onPrevDay">
+      <text class="nav-arrow">前</text>
+    </view>
+    <view class="date-display" bind:tap="onSelectDate">
+      <picker mode="date" value="{{selectedDate}}" bindchange="onDateChange">
+        <view class="date-content">
+          <text class="date-text">{{selectedDate}}</text>
+          <text class="week-text">{{weekDay}}</text>
+          <text class="picker-hint">点击选择日期</text>
+        </view>
+      </picker>
+    </view>
+    <view class="date-nav" bind:tap="onNextDay">
+      <text class="nav-arrow">后</text>
+    </view>
+  </view>
+
+  <!-- 今日快捷按钮 -->
+  <view class="quick-today" wx:if="{{selectedDate !== today}}" bind:tap="onGoToday">
+    <text class="quick-today-text">返回今日</text>
+  </view>
+
+  <!-- 记录列表 -->
+  <view class="record-list" wx:if="{{records.length > 0}}">
+    <view class="record-card {{item.status}}" wx:for="{{records}}" wx:key="_id">
+      <view class="record-icon {{item.status}}">
+        <text>{{item.status === 'taken' ? '✓' : '✗'}}</text>
+      </view>
+      <view class="record-info">
+        <text class="record-name">{{item.medicationName}}</text>
+        <text class="record-dosage">{{item.dosage}}</text>
+      </view>
+      <view class="record-time">
+        <text class="time-text">{{item.timeText}}</text>
+        <text class="status-text {{item.status}}">{{item.statusText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <image class="empty-icon" src="/images/empty.png" mode="aspectFit"></image>
+    <text class="empty-text">暂无服药记录</text>
+    <text class="empty-subtext">该日期没有服药记录</text>
+  </view>
+
+  <!-- 统计摘要 -->
+  <view class="summary" wx:if="{{records.length > 0}}">
+    <view class="summary-item">
+      <text class="summary-value taken">{{takenCount}}</text>
+      <text class="summary-label">已服</text>
+    </view>
+    <view class="summary-item">
+      <text class="summary-value missed">{{missedCount}}</text>
+      <text class="summary-label">漏服</text>
+    </view>
+    <view class="summary-item">
+      <text class="summary-value total">{{totalCount}}</text>
+      <text class="summary-label">总计</text>
+    </view>
+  </view>
+</view>

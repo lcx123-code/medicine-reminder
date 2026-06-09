@@ -1,0 +1,34 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/medications/medications",
+    "pages/addMedication/addMedication",
+    "pages/records/records",
+    "pages/statistics/statistics",
+    "pages/privacy/privacy"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#6366F1",
+    "navigationBarTitleText": "吃药提醒",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F5F5"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999",
+    "selectedColor": "#6366F1",
+    "backgroundColor": "#fff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "今日" },
+      { "pagePath": "pages/medications/medications", "text": "药品" },
+      { "pagePath": "pages/records/records", "text": "记录" },
+      { "pagePath": "pages/statistics/statistics", "text": "统计" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "cloud": true,
+  "lazyCodeLoading": "requiredComponents"
+}

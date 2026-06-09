@@ -1,0 +1,74 @@
+<view class="container">
+  <!-- 骨架屏加载状态 -->
+  <view class="skeleton" wx:if="{{loading}}">
+    <view class="skeleton-header">
+      <view class="skeleton-line skeleton-title"></view>
+      <view class="skeleton-line skeleton-subtitle"></view>
+    </view>
+    <view class="skeleton-card" wx:for="{{3}}" wx:key="index">
+      <view class="skeleton-circle"></view>
+      <view class="skeleton-content">
+        <view class="skeleton-line skeleton-name"></view>
+        <view class="skeleton-line skeleton-desc"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 正常内容 -->
+  <view class="content" wx:else>
+    <!-- 通知授权提示条 -->
+    <view class="notify-banner" wx:if="{{showNotifyBanner}}">
+      <view class="notify-banner-text" bind:tap="onSubscribeNotify">
+        <text class="notify-icon">!</text>
+        <text class="notify-msg">开启通知提醒，按时服药不遗漏</text>
+        <text class="notify-btn">去开启</text>
+      </view>
+      <text class="notify-close" catch:tap="onCloseNotifyBanner">×</text>
+    </view>
+
+    <!-- 日期显示 -->
+    <view class="date-header">
+      <view class="date-info">
+        <text class="date-text">{{today}}</text>
+        <text class="week-text">{{weekDay}}</text>
+      </view>
+      <view class="date-icon">
+        <text class="icon-text">药</text>
+      </view>
+    </view>
+
+    <!-- 提醒列表 -->
+    <view class="reminder-list" wx:if="{{reminders.length > 0}}">
+      <view class="section-title">今日用药</view>
+      <reminder-card 
+        wx:for="{{reminders}}" 
+        wx:key="_id"
+        reminder="{{item}}"
+        bind:takeMedicine="onTakeMedicine"
+      />
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:else>
+      <view class="empty-icon-wrapper">
+        <text class="empty-icon-text">+</text>
+      </view>
+      <text class="empty-text">今天没有需要服用的药品</text>
+      <text class="empty-subtext">点击下方"药品"添加您的第一个药品</text>
+    </view>
+
+    <!-- 库存预警提示 -->
+    <view class="stock-warning" wx:if="{{stockWarnings.length > 0}}">
+      <view class="warning-title">
+        <text class="warning-icon">!</text>
+        <text>库存预警</text>
+      </view>
+      <view class="warning-list">
+        <view class="warning-item" wx:for="{{stockWarnings}}" wx:key="_id">
+          <text class="warning-name">{{item.name}}</text>
+          <text class="warning-stock">剩余 {{item.stock}}{{item.stockUnit}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

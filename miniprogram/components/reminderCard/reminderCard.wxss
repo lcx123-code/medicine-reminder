@@ -1,0 +1,117 @@
+/* 提醒卡片样式 - 精致版 */
+.reminder-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+.reminder-card:active {
+  transform: scale(0.98);
+}
+
+.reminder-card.completed {
+  background: linear-gradient(135deg, #F0FFF4 0%, #C6F6D5 100%);
+  border-color: #9AE6B4;
+}
+
+.reminder-card.missed {
+  background: linear-gradient(135deg, #FFF5F5 0%, #FED7D7 100%);
+  border-color: #FEB2B2;
+}
+
+/* 左侧时间 */
+.card-left {
+  margin-right: 24rpx;
+}
+
+.time-badge {
+  width: 130rpx;
+  height: 130rpx;
+  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  border-radius: 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.35);
+}
+
+.completed .time-badge {
+  background: linear-gradient(135deg, #48BB78 0%, #38A169 100%);
+  box-shadow: 0 8rpx 24rpx rgba(72, 187, 120, 0.35);
+}
+
+.missed .time-badge {
+  background: linear-gradient(135deg, #FC8181 0%, #F56565 100%);
+  box-shadow: 0 8rpx 24rpx rgba(245, 101, 101, 0.35);
+}
+
+.time-text {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* 中间信息 */
+.card-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.medication-name {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #2D3748;
+  margin-bottom: 10rpx;
+}
+
+.dosage-text {
+  font-size: 28rpx;
+  color: #718096;
+}
+
+/* 右侧按钮 */
+.card-right {
+  margin-left: 20rpx;
+}
+
+.status-btn {
+  width: 130rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.status-btn.pending {
+  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  color: #fff;
+  box-shadow: 0 6rpx 20rpx rgba(102, 126, 234, 0.4);
+}
+
+.status-btn.pending:active {
+  transform: scale(0.95);
+}
+
+.status-btn.completed {
+  background: transparent;
+  color: #48BB78;
+  border: 2rpx solid #48BB78;
+}
+
+.status-btn.missed {
+  background: transparent;
+  color: #F56565;
+  border: 2rpx solid #F56565;
+}

@@ -1,0 +1,147 @@
+<view class="container">
+  <view class="form">
+    <!-- 药品名称 -->
+    <view class="form-item">
+      <text class="form-label">药品名称</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入药品名称"
+        value="{{formData.name}}"
+        bindinput="onInputName"
+      />
+    </view>
+
+    <!-- 剂量 -->
+    <view class="form-item">
+      <text class="form-label">剂量</text>
+      <input 
+        class="form-input" 
+        placeholder="如：1片、5ml"
+        value="{{formData.dosage}}"
+        bindinput="onInputDosage"
+      />
+    </view>
+
+    <!-- 频次 -->
+    <view class="form-item">
+      <text class="form-label">频次</text>
+      <picker mode="selector" range="{{frequencyOptions}}" bindchange="onSelectFrequency">
+        <view class="form-picker">
+          <text>{{formData.frequency || '请选择频次'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 提醒时间 -->
+    <view class="form-item">
+      <text class="form-label">提醒时间</text>
+      <view class="time-list">
+        <view class="time-item" wx:for="{{formData.times}}" wx:key="index">
+          <text class="time-text">{{item}}</text>
+          <view class="time-delete" bind:tap="onDeleteTime" data-index="{{index}}">×</view>
+        </view>
+      </view>
+      <view class="time-picker-row">
+        <picker mode="selector" range="{{hours}}" value="{{hourIndex}}" bindchange="onHourChange">
+          <view class="time-picker-btn">
+            <text>{{selectedHour || '时'}}</text>
+          </view>
+        </picker>
+        <text class="time-sep">:</text>
+        <picker mode="selector" range="{{minutes}}" value="{{minuteIndex}}" bindchange="onMinuteChange">
+          <view class="time-picker-btn">
+            <text>{{selectedMinute || '分'}}</text>
+          </view>
+        </picker>
+        <view class="time-add-btn" bind:tap="onConfirmTime">
+          <text>确定</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 当前库存 -->
+    <view class="form-item">
+      <view class="form-label-row">
+        <text class="form-label">库存管理</text>
+        <switch checked="{{formData.stockEnabled}}" bindchange="onToggleStock" color="#667EEA" />
+      </view>
+    </view>
+
+    <view wx:if="{{formData.stockEnabled}}">
+      <!-- 当前库存 -->
+      <view class="form-item">
+        <text class="form-label">当前库存</text>
+        <view class="stock-input-group">
+          <input 
+            class="form-input stock-input" 
+            type="digit"
+            placeholder="数量"
+            value="{{formData.stock}}"
+            bindinput="onInputStock"
+          />
+          <picker mode="selector" range="{{stockUnitOptions}}" bindchange="onSelectStockUnit">
+            <view class="form-picker unit-picker">
+              <text>{{formData.stockUnit}}</text>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <!-- 库存预警值 -->
+      <view class="form-item">
+        <text class="form-label">库存预警值</text>
+        <input 
+          class="form-input" 
+          type="number"
+          placeholder="库存低于此值时提醒"
+          value="{{formData.stockWarning}}"
+          bindinput="onInputStockWarning"
+        />
+      </view>
+    </view>
+
+    <!-- 用药周期 -->
+    <view class="form-item">
+      <text class="form-label">用药周期</text>
+      <view class="cycle-group">
+        <picker mode="selector" range="{{durationOptions}}" bindchange="onSelectDuration">
+          <view class="form-picker cycle-picker">
+            <text>{{durationText}}</text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 开始日期 -->
+    <view class="form-item" wx:if="{{formData.duration > 0}}">
+      <text class="form-label">开始日期</text>
+      <picker mode="date" bindchange="onSelectStartDate">
+        <view class="form-picker">
+          <text>{{formData.startDate || '请选择开始日期'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 备注 -->
+    <view class="form-item">
+      <text class="form-label">备注</text>
+      <textarea 
+        class="form-textarea" 
+        placeholder="添加用药注意事项、医嘱等备注信息"
+        value="{{formData.notes}}"
+        bindinput="onInputNotes"
+        maxlength="200"
+      />
+      <text class="textarea-count">{{formData.notes.length}}/200</text>
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <view class="save-btn" bind:tap="onSave">
+    <text>保存药品</text>
+  </view>
+</view>
