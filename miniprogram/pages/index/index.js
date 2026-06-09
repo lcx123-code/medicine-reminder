@@ -131,7 +131,7 @@ Page({
       if (res.code === 0) {
         // 筛选条件：启用中 且 库存 <= 预警值 且 库存 > 0 且 开启了库存管理
         var warnings = res.data.filter(function (med) {
-          return med.isActive && med.stockEnabled !== false && med.stock <= med.stockWarning && med.stock >= 0;
+          return med.isActive && med.stockEnabled !== false && med.stock > 0 && med.stock <= med.stockWarning;
         });
         that.setData({ stockWarnings: warnings });
       }

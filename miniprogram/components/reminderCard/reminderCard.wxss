@@ -94,13 +94,15 @@
   transition: all 0.3s ease;
 }
 
-.status-btn.pending {
+.status-btn.pending,
+.status-btn.sent {
   background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
   color: #fff;
   box-shadow: 0 6rpx 20rpx rgba(102, 126, 234, 0.4);
 }
 
-.status-btn.pending:active {
+.status-btn.pending:active,
+.status-btn.sent:active {
   transform: scale(0.95);
 }
 
