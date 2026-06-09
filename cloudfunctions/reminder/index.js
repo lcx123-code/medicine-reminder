@@ -67,11 +67,9 @@ async function getTodayReminders(userId) {
     .orderBy('scheduledTime', 'asc').get();
   reminders = refreshRes.data;
 
-  // 收集已有待处理 medicationId（只统计 pending 和 sent）
+  // 收集已有 medicationId
   var existingMedIds = [];
   for (var i = 0; i < reminders.length; i++) {
-    var status = reminders[i].status;
-    if (status !== 'pending' && status !== 'sent') continue;
     if (existingMedIds.indexOf(reminders[i].medicationId) === -1)
       existingMedIds.push(reminders[i].medicationId);
   }
