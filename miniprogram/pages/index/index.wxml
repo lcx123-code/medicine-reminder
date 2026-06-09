@@ -20,7 +20,7 @@
     <view class="notify-banner" wx:if="{{showNotifyBanner}}">
       <view class="notify-banner-text" bind:tap="onSubscribeNotify">
         <text class="notify-icon">!</text>
-        <text class="notify-msg">开启通知提醒，按时服药不遗漏</text>
+        <text class="notify-msg">开启通知提醒，请勾选「总是保持以上选择」</text>
         <text class="notify-btn">去开启</text>
       </view>
       <text class="notify-close" catch:tap="onCloseNotifyBanner">×</text>
