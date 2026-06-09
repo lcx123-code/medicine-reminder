@@ -108,6 +108,39 @@ async function getTodayReminders(userId) {
     }
   }
 
+  // 清理孤儿记录：reminderId 指向已删除提醒的服药记录
+  var recordsRes = await db.collection('records')
+    .where({ userId: userId, createdAt: _.gte(today).and(_.lt(tomorrow)) })
+    .field({ _id: true, reminderId: true })
+    .get();
+  var orphanIds = [];
+  var checkIds = [];
+  for (var ri = 0; ri < recordsRes.data.length; ri++) {
+    var rec = recordsRes.data[ri];
+    if (!rec.reminderId) continue;
+    if (checkIds.indexOf(rec.reminderId) === -1)
+      checkIds.push(rec.reminderId);
+  }
+  var validReminders = {};
+  if (checkIds.length > 0) {
+    var reminderCheckRes = await db.collection('reminders')
+      .where({ _id: _.in(checkIds) })
+      .field({ _id: true })
+      .limit(100)
+      .get();
+    for (var rj = 0; rj < reminderCheckRes.data.length; rj++)
+      validReminders[reminderCheckRes.data[rj]._id] = true;
+  }
+  for (var ri = 0; ri < recordsRes.data.length; ri++) {
+    var rec = recordsRes.data[ri];
+    if (rec.reminderId && !validReminders[rec.reminderId])
+      orphanIds.push(rec._id);
+  }
+  if (orphanIds.length > 0) {
+    await db.collection('records').where({ _id: _.in(orphanIds) }).remove();
+    console.log('清理孤儿记录:', orphanIds.length, '条');
+  }
+
   // 重建 existingMedIds（幽灵清理可能删了提醒）
   existingMedIds = [];
   for (var i = 0; i < reminders.length; i++) {
