@@ -2,7 +2,6 @@
 // 定时触发器：每分钟执行一次
 // 注意：定时触发的云函数不能用 cloud.openapi，改用直接调微信 HTTP API
 const cloud = require('wx-server-sdk');
-const https = require('https');
 
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
@@ -11,173 +10,9 @@ cloud.init({
 const db = cloud.database();
 const _ = db.command;
 
-// ==================== access_token 缓存管理 ====================
-
-var accessTokenCache = {
-  token: null,
-  expiresAt: 0
-};
-
-/**
- * 获取微信 access_token（带缓存，提前5分钟刷新）
- * 使用 stable_token 接口，不会使旧 token 失效
- */
-function getAccessToken() {
-  return new Promise(function (resolve, reject) {
-    var now = Date.now();
-    // 缓存有效（提前5分钟刷新避免边界过期）
-    if (accessTokenCache.token && now < accessTokenCache.expiresAt - 5 * 60 * 1000) {
-      return resolve(accessTokenCache.token);
-    }
-
-    var body = JSON.stringify({
-      grant_type: 'client_credential',
-      appid: 'wx39c8f9bad9062017',
-      secret: '4021c46d0eaa267bb5a8ce7669acf97e',
-      force_refresh: false
-    });
-
-    var req = https.request('https://api.weixin.qq.com/cgi-bin/stable_token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(body)
-      }
-    }, function (res) {
-      var data = '';
-      res.on('data', function (chunk) { data += chunk; });
-      res.on('end', function () {
-        try {
-          var result = JSON.parse(data);
-          if (result.access_token) {
-            accessTokenCache.token = result.access_token;
-            accessTokenCache.expiresAt = now + (result.expires_in || 7200) * 1000;
-            console.log('access_token 已刷新，有效期至:', new Date(accessTokenCache.expiresAt).toISOString());
-            resolve(accessTokenCache.token);
-          } else {
-            reject(new Error('获取 access_token 失败: ' + data));
-          }
-        } catch (e) {
-          reject(new Error('解析 access_token 响应失败: ' + data));
-        }
-      });
-    });
-
-    req.on('error', function (err) {
-      reject(new Error('请求 access_token 网络错误: ' + err.message));
-    });
-    req.write(body);
-    req.end();
-  });
-}
-
-/**
- * 发送订阅消息（直接调微信 HTTP API，不走 cloud.openapi）
- */
-function sendSubscribeMessage(openid, templateId, page, templateData) {
-  return getAccessToken().then(function (token) {
-    return new Promise(function (resolve, reject) {
-      var body = JSON.stringify({
-        touser: openid,
-        template_id: templateId,
-        page: page,
-        data: templateData,
-        miniprogram_state: 'trial',
-        lang: 'zh_CN'
-      });
-
-      var req = https.request('https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=' + token, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(body)
-        }
-      }, function (res) {
-        var data = '';
-        res.on('data', function (chunk) { data += chunk; });
-        res.on('end', function () {
-          try {
-            var result = JSON.parse(data);
-            if (result.errcode === 0) {
-              resolve(result);
-            } else {
-              reject(new Error(JSON.stringify(result)));
-            }
-          } catch (e) {
-            reject(new Error('解析订阅消息响应失败: ' + data));
-          }
-        });
-      });
-
-      req.on('error', function (err) {
-        reject(new Error('发送订阅消息网络错误: ' + err.message));
-      });
-      req.write(body);
-      req.end();
-    });
-  });
-}
-
-/**
- * 发送到期提醒
- */
-async function sendDueReminders() {
-  var now = new Date();
-  var fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
-
-  // 获取需要发送的提醒（状态为pending且时间已到）
-  var remindersRes = await db.collection('reminders')
-    .where({
-      status: 'pending',
-      scheduledTime: _.lte(now).and(_.gte(fiveMinutesAgo))
-    })
-    .limit(100)
-    .get();
-
-  var reminders = remindersRes.data;
-
-  for (var i = 0; i < reminders.length; i++) {
-    var reminder = reminders[i];
-
-    try {
-      // 获取药品信息
-      var medicationRes = await db.collection('medications').doc(reminder.medicationId).get();
-      var medication = medicationRes.data;
-
-      if (!medication) {
-        continue;
-      }
-
-      if (!medication.isActive) {
-        continue;
-      }
-
-      // 发送订阅消息（直接调微信 HTTP API）
-      var REMINDER_TEMPLATE_ID = 'HBUcX64MIUMEnf-WPQiAuatrglxdIORe4Z03ZgNHGrg';
-      await sendSubscribeMessage(
-        reminder.userId,
-        REMINDER_TEMPLATE_ID,
-        'pages/index/index',
-        {
-          thing1: { value: '请及时服药' },
-          thing2: { value: medication.name },
-          time3: { value: formatTime(reminder.scheduledTime) },
-          thing7: { value: medication.duration ? medication.duration + '天' : '长期用药' },
-          time10: { value: reminder.timeStr || formatTime(reminder.scheduledTime) }
-        }
-      );
-
-      // 更新提醒状态为已发送（记录发送时间，用于漏服判断）
-      await db.collection('reminders').doc(reminder._id).update({
-        data: { status: 'sent', sentTime: db.serverDate() }
-      });
-
-      console.log('提醒已发送:', reminder._id);
-    } catch (err) {
-      console.error('发送提醒失败:', reminder._id, err);
-    }
-  }
-}
+var accessToken = require('./access-token');
+var sendMessage = require('./send-message');
+var helper = require('./helpers');
 
 /**
  * 检查库存预警
@@ -201,10 +36,9 @@ async function checkStockWarnings() {
 
     if (med.stock <= med.stockWarning) {
       try {
-        var STOCK_TEMPLATE_ID = 'yWIU75GOoaaRDI0eAzBRfZb8N5jOKDtKXj2PhLQ6xps';
-        await sendSubscribeMessage(
+        await accessToken.sendSubscribeMessage(
           med.userId,
-          STOCK_TEMPLATE_ID,
+          accessToken.TEMPLATE_IDS.STOCK,
           'pages/medications/medications',
           {
             thing1: { value: med.name },
@@ -225,7 +59,7 @@ async function checkStockWarnings() {
  * 检查用药周期结束
  */
 async function checkMedicationCycles() {
-  var today = formatDate(new Date());
+  var today = helper.formatDate(new Date());
 
   // 获取有用药周期的药品
   var medicationsRes = await db.collection('medications')
@@ -246,7 +80,7 @@ async function checkMedicationCycles() {
     var endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + med.duration);
 
-    if (formatDate(endDate) <= today) {
+    if (helper.formatDate(endDate) <= today) {
       try {
         // 停用该药品
         await db.collection('medications').doc(med._id).update({
@@ -254,13 +88,12 @@ async function checkMedicationCycles() {
         });
 
         // 发送周期结束通知
-        var CYCLE_TEMPLATE_ID = '0atsTuJOmGeeKXpCDdzMJS4-1zQh6ZPK22N0AR0SukM';
-        await sendSubscribeMessage(
+        await accessToken.sendSubscribeMessage(
           med.userId,
-          CYCLE_TEMPLATE_ID,
+          accessToken.TEMPLATE_IDS.CYCLE,
           'pages/medications/medications',
           {
-            time1: { value: formatDate(endDate) },
+            time1: { value: helper.formatDate(endDate) },
             thing2: { value: med.name + '用药周期已结束，已自动停用' }
           }
         );
@@ -334,7 +167,7 @@ async function createTomorrowReminders() {
 
   var tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  var tomorrowStr = formatDate(tomorrow);
+  var tomorrowStr = helper.formatDate(tomorrow);
 
   // 获取所有启用的药品
   var medicationsRes = await db.collection('medications')
@@ -353,7 +186,7 @@ async function createTomorrowReminders() {
       var endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + med.duration);
 
-      if (formatDate(endDate) < tomorrowStr) {
+      if (helper.formatDate(endDate) < tomorrowStr) {
         continue; // 已过用药周期
       }
     }
@@ -373,7 +206,7 @@ async function createTomorrowReminders() {
     // 创建明天的提醒
     if (med.times && med.times.length > 0) {
       for (var j = 0; j < med.times.length; j++) {
-        var scheduledTime = new Date(new Date(tomorrowStr + 'T' + med.times[j] + ':00').getTime() + (med.timezoneOffset || 0) * 60 * 1000);
+        var scheduledTime = helper.calcScheduledTime(tomorrowStr, med.times[j], med.timezoneOffset || 0);
 
         await db.collection('reminders').add({
           data: {
@@ -390,35 +223,13 @@ async function createTomorrowReminders() {
   }
 }
 
-/**
- * 格式化日期
- */
-function formatDate(date) {
-  var d = new Date(date);
-  var year = d.getFullYear();
-  var month = ('0' + (d.getMonth() + 1)).slice(-2);
-  var day = ('0' + d.getDate()).slice(-2);
-  return year + '-' + month + '-' + day;
-}
-
-/**
- * 格式化时间（转为北京时间显示）
- */
-function formatTime(date) {
-  var d = new Date(date);
-  var bjHours = (d.getUTCHours() + 8) % 24;
-  var hours = ('0' + bjHours).slice(-2);
-  var minutes = ('0' + d.getUTCMinutes()).slice(-2);
-  return hours + ':' + minutes;
-}
-
 // 云函数入口函数
 exports.main = async (event, context) => {
   console.log('定时触发器开始执行');
 
   try {
     // 1. 发送到期提醒
-    await sendDueReminders();
+    await sendMessage.sendDueReminders();
 
     // 2. 检查库存预警
     await checkStockWarnings();

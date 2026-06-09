@@ -8,6 +8,8 @@ cloud.init({
 const db = cloud.database();
 const _ = db.command;
 
+var helper = require('./helpers');
+
 /**
  * 解析剂量字符串，提取数值
  * @param {string} dosageStr 剂量字符串，如 "1片"、"5ml"
@@ -34,7 +36,7 @@ async function createRemindersForMedication(userId, medicationId, times, startDa
   if (!times || times.length === 0) return;
 
   var today = new Date();
-  var todayStr = formatDate(today);
+  var todayStr = helper.formatDate(today);
 
   // 计算结束日期
   var endDate = null;
@@ -45,7 +47,7 @@ async function createRemindersForMedication(userId, medicationId, times, startDa
 
   // 为今天创建提醒（无论时间是否已过，都创建，方便查看今日全部用药计划）
   for (var i = 0; i < times.length; i++) {
-    var scheduledTime = new Date(new Date(todayStr + 'T' + times[i] + ':00').getTime() + (timezoneOffset || 0) * 60 * 1000);
+    var scheduledTime = helper.calcScheduledTime(todayStr, times[i], timezoneOffset);
 
     await db.collection('reminders').add({
       data: {
@@ -58,17 +60,6 @@ async function createRemindersForMedication(userId, medicationId, times, startDa
       }
     });
   }
-}
-
-/**
- * 格式化日期
- */
-function formatDate(date) {
-  var d = new Date(date);
-  var year = d.getFullYear();
-  var month = ('0' + (d.getMonth() + 1)).slice(-2);
-  var day = ('0' + d.getDate()).slice(-2);
-  return year + '-' + month + '-' + day;
 }
 
 /**
@@ -90,7 +81,7 @@ async function addMedication(userId, data) {
     stock: data.stock || 0,
     stockWarning: data.stockWarning || 10,
     duration: data.duration || 0,
-    startDate: data.startDate || formatDate(new Date()),
+    startDate: data.startDate || helper.formatDate(new Date()),
     timezoneOffset: data.timezoneOffset || new Date().getTimezoneOffset(),
     isActive: true,
     createdAt: db.serverDate()
@@ -99,7 +90,7 @@ async function addMedication(userId, data) {
   var result = await db.collection('medications').add({ data: medication });
 
   // 创建提醒记录（仅当 startDate 已到或从今天开始）
-  var todayStr = formatDate(new Date());
+  var todayStr = helper.formatDate(new Date());
   if (!medication.startDate || medication.startDate <= todayStr) {
     await createRemindersForMedication(
       userId,
@@ -147,7 +138,7 @@ async function updateMedication(userId, data) {
   if (data.times && data.times.length > 0) {
     await createRemindersForMedication(
       userId, id, data.times,
-      data.startDate || formatDate(new Date()),
+      data.startDate || helper.formatDate(new Date()),
       data.duration || 0,
       timezoneOffset
     );
@@ -231,7 +222,7 @@ async function syncTodayReminders(userId) {
 
     // 4. 补建今日所有提醒
     for (var j = 0; j < med.times.length; j++) {
-      var scheduledTime = new Date(new Date(formatDate(today) + 'T' + med.times[j] + ':00').getTime() + (med.timezoneOffset || 0) * 60 * 1000);
+      var scheduledTime = helper.calcScheduledTime(helper.formatDate(today), med.times[j], med.timezoneOffset || 0);
 
       await db.collection('reminders').add({
         data: {
@@ -274,6 +265,23 @@ exports.main = async (event, context) => {
           await db.collection('reminders')
             .where({ medicationId: event.data.id, status: 'pending' })
             .update({ data: { status: 'cancelled' } });
+        } else {
+          // 启用时检查今日是否有提醒，无则创建
+          var todayStart = new Date();
+          todayStart.setHours(0, 0, 0, 0);
+          var todayEnd = new Date(todayStart);
+          todayEnd.setDate(todayEnd.getDate() + 1);
+          var existing = await db.collection('reminders')
+            .where({ medicationId: event.data.id, scheduledTime: _.gte(todayStart).and(_.lt(todayEnd)) })
+            .count();
+          if (existing.total === 0) {
+            var medRes = await db.collection('medications').doc(event.data.id).get();
+            var med = medRes.data;
+            if (med && med.times && med.times.length > 0) {
+              await createRemindersForMedication(openid, event.data.id, med.times,
+                helper.formatDate(new Date()), med.duration || 0, med.timezoneOffset || -480);
+            }
+          }
         }
         return { code: 0, message: 'ok' };
       case 'syncTodayReminders':

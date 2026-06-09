@@ -8,6 +8,8 @@ cloud.init({
 const db = cloud.database();
 const _ = db.command;
 
+var helper = require('./helpers');
+
 /**
  * 获取统计数据
  */
@@ -41,7 +43,7 @@ async function getStatistics(userId, data) {
   // 一次性获取所有提醒数据
   var allReminders = await db.collection('reminders')
     .where(baseWhere)
-    .field({ status: true, scheduledTime: true, medicationId: true })
+    .field({ status: true, scheduledTime: true, medicationId: true, timeStr: true })
     .limit(10000)
     .get();
 
@@ -56,10 +58,10 @@ async function getStatistics(userId, data) {
   if (medIdsInReminders.length > 0) {
     var medRes = await db.collection('medications')
       .where({ _id: _.in(medIdsInReminders) })
-      .field({ name: true })
+      .field({ name: true, times: true })
       .get();
     for (var j = 0; j < medRes.data.length; j++)
-      validMeds[medRes.data[j]._id] = medRes.data[j].name;
+      validMeds[medRes.data[j]._id] = { name: medRes.data[j].name, times: medRes.data[j].times || [] };
   }
 
   // 在内存中计算统计数据
@@ -76,6 +78,10 @@ async function getStatistics(userId, data) {
 
     if (!validMeds[r.medicationId]) continue;
 
+    // 幽灵过滤：timeStr 不在药品 times 数组中的跳过
+    var medInfo = validMeds[r.medicationId];
+    if (r.timeStr && medInfo.times.indexOf(r.timeStr) === -1) continue;
+
     total++;
 
     // 统计状态
@@ -88,7 +94,7 @@ async function getStatistics(userId, data) {
     }
 
     // 每日统计
-    var dateStr = formatDate(r.scheduledTime);
+    var dateStr = helper.formatDate(r.scheduledTime);
     if (!dailyStatsMap[dateStr]) {
       dailyStatsMap[dateStr] = { date: dateStr, total: 0, completed: 0 };
     }
@@ -114,20 +120,24 @@ async function getStatistics(userId, data) {
   var completedDates = {};
   for (var di = 0; di < reminders.length; di++) {
     if (reminders[di].status === 'completed') {
-      completedDates[reminders[di].medicationId + '|' + formatDate(reminders[di].scheduledTime)] = true;
+      completedDates[reminders[di].medicationId + '|' + helper.formatDate(reminders[di].scheduledTime)] = true;
     }
   }
 
   var recWhere = { userId: userId, takenAt: _.gte(startDate).and(_.lte(endDate)) };
   if (medicationId) recWhere.medicationId = medicationId;
   var recordsRecover = await db.collection('records')
-    .where(recWhere).limit(10000).field({ medicationId: true, takenAt: true }).get();
+    .where(recWhere).limit(10000).field({ medicationId: true, takenAt: true, reminderId: true }).get();
 
   for (var ri = 0; ri < recordsRecover.data.length; ri++) {
     var rec = recordsRecover.data[ri];
     var medId = rec.medicationId;
-    var recDate = formatDate(rec.takenAt);
+    var recDate = helper.formatDate(rec.takenAt);
     if (!validMeds[medId]) continue;
+    // 幽灵记录过滤
+    var takenTime = helper.formatTime(rec.takenAt);
+    var medInfo = validMeds[medId];
+    if (takenTime && medInfo.times.indexOf(takenTime) === -1) continue;
     if (completedDates[medId + '|' + recDate]) continue;
     completedDates[medId + '|' + recDate] = true;
 
@@ -156,7 +166,7 @@ async function getStatistics(userId, data) {
     var medStat = medicationStatsMap[medId];
     medicationStats.push({
       medicationId: medId,
-      medicationName: validMeds[medId],
+      medicationName: validMeds[medId].name,
       total: medStat.total,
       completed: medStat.completed,
       adherenceRate: medStat.total > 0 ? Math.round((medStat.completed / medStat.total) * 100) : 0
@@ -175,17 +185,6 @@ async function getStatistics(userId, data) {
       medicationStats: medicationStats
     }
   };
-}
-
-/**
- * 格式化日期
- */
-function formatDate(date) {
-  var d = new Date(date);
-  var year = d.getFullYear();
-  var month = ('0' + (d.getMonth() + 1)).slice(-2);
-  var day = ('0' + d.getDate()).slice(-2);
-  return year + '-' + month + '-' + day;
 }
 
 // 云函数入口函数
