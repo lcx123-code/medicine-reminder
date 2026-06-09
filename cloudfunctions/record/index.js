@@ -121,17 +121,18 @@ async function getRecords(userId, data) {
     }
   }
 
-  // 组合数据
+  // 组合数据（跳过已删除药品的记录）
   var result = [];
   for (var k = 0; k < records.length; k++) {
     var record = records[k];
-    var medication = medications[record.medicationId] || null;
+    var medication = medications[record.medicationId];
+    if (!medication) continue;
 
     result.push({
       _id: record._id,
       medicationId: record.medicationId,
-      medicationName: medication ? medication.name : '未知药品',
-      dosage: medication ? medication.dosage : '',
+      medicationName: medication.name,
+      dosage: medication.dosage || '',
       takenAt: record.takenAt,
       status: record.status
     });
