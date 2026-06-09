@@ -137,11 +137,17 @@ async function getRecords(userId, data) {
     var record = records[k];
     var medication = medications[record.medicationId] || null;
 
+    if (!medication) {
+      // 药品已被删除，同步清理这条孤儿记录（永不出"未知药品"）
+      await db.collection('records').doc(record._id).remove();
+      continue;
+    }
+
     result.push({
       _id: record._id,
       medicationId: record.medicationId,
-      medicationName: medication ? medication.name : '未知药品',
-      dosage: medication ? medication.dosage : '',
+      medicationName: medication.name,
+      dosage: medication.dosage,
       takenAt: record.takenAt,
       status: record.status
     });
