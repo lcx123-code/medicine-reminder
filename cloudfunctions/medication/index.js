@@ -159,6 +159,11 @@ async function deleteMedication(userId, id) {
     medicationId: id
   }).remove();
 
+  // 同步删除关联的服药记录
+  await db.collection('records').where({
+    medicationId: id
+  }).remove();
+
   return {
     code: 0,
     message: '删除成功'
