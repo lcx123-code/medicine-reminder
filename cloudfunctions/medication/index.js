@@ -91,6 +91,7 @@ async function addMedication(userId, data) {
     stockWarning: data.stockWarning || 10,
     duration: data.duration || 0,
     startDate: data.startDate || formatDate(new Date()),
+    timezoneOffset: data.timezoneOffset || new Date().getTimezoneOffset(),
     isActive: true,
     createdAt: db.serverDate()
   };
@@ -123,7 +124,8 @@ async function updateMedication(userId, data) {
   var id = data.id;
   var timezoneOffset = data.timezoneOffset;
   delete data.id;
-  delete data.timezoneOffset;
+  // 保留 timezoneOffset，确保存储到药品文档
+  data.timezoneOffset = timezoneOffset;
 
   if (data.dosage) {
     data.numericDosage = parseNumericDosage(data.dosage);

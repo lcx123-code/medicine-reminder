@@ -38,6 +38,9 @@ Component({
   methods: {
     onTapTake: function () {
       this.triggerEvent('takeMedicine', { reminder: this.properties.reminder });
+    },
+    onTapAcknowledge: function () {
+      this.triggerEvent('acknowledge', { reminder: this.properties.reminder });
     }
   }
 });

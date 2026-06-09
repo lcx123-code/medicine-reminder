@@ -115,6 +115,10 @@ function toggleMedicationStatus(id, isActive) {
   });
 }
 
+function acknowledgeReminder(id) {
+  return callFunction('reminder', { action: 'acknowledge', data: { id: id } });
+}
+
 module.exports = {
   callFunction: callFunction,
   login: login,
@@ -128,5 +132,6 @@ module.exports = {
   getRecords: getRecords,
   getStatistics: getStatistics,
   syncTodayReminders: syncTodayReminders,
-  toggleMedicationStatus: toggleMedicationStatus
+  toggleMedicationStatus: toggleMedicationStatus,
+  acknowledgeReminder: acknowledgeReminder
 };

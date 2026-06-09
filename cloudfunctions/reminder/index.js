@@ -43,9 +43,35 @@ async function getTodayReminders(userId) {
     .orderBy('scheduledTime', 'asc').get();
   var reminders = remindersRes.data;
 
-  // 收集已有 medicationId
+  // 数据迁移：修复缺少 timezoneOffset 的旧药品
+  var needMigrate = await db.collection('medications')
+    .where({ userId: userId, isActive: true, timezoneOffset: _.exists(false) })
+    .field({ _id: true }).get();
+  if (needMigrate.data.length > 0) {
+    console.log('开始数据迁移，修复', needMigrate.data.length, '个药品');
+    for (var mm = 0; mm < needMigrate.data.length; mm++) {
+      var mid = needMigrate.data[mm]._id;
+      await db.collection('medications').doc(mid).update({
+        data: { timezoneOffset: -480 }
+      });
+      await db.collection('reminders').where({
+        medicationId: mid, status: _.in(['pending', 'sent']), scheduledTime: _.gte(today)
+      }).remove();
+      console.log('迁移:', mid);
+    }
+  }
+
+  // 迁移后重新获取今日提醒（旧数据已被删除）
+  var refreshRes = await db.collection('reminders')
+    .where({ userId: userId, scheduledTime: _.gte(today).and(_.lt(tomorrow)) })
+    .orderBy('scheduledTime', 'asc').get();
+  reminders = refreshRes.data;
+
+  // 收集已有待处理 medicationId（只统计 pending 和 sent）
   var existingMedIds = [];
   for (var i = 0; i < reminders.length; i++) {
+    var status = reminders[i].status;
+    if (status !== 'pending' && status !== 'sent') continue;
     if (existingMedIds.indexOf(reminders[i].medicationId) === -1)
       existingMedIds.push(reminders[i].medicationId);
   }
@@ -81,9 +107,9 @@ async function getTodayReminders(userId) {
     }
   }
 
-  // 重新排序
+  // 重新排序（按设定时间 timeStr）
   reminders.sort(function(a, b) {
-    return a.scheduledTime > b.scheduledTime ? 1 : -1;
+    return (a.timeStr || '') > (b.timeStr || '') ? 1 : -1;
   });
 
   // 获取关联的药品信息
@@ -162,7 +188,11 @@ exports.main = async (event, context) => {
         return await updateReminderStatus(openid, event.data.id, event.data.status);
       case 'cancel':
         return await cancelReminder(openid, event.data.id);
-      default:
+      case 'acknowledge':
+        await db.collection('reminders').doc(event.data.id).update({
+          data: { status: 'acknowledged' }
+        });
+        return { code: 0, message: 'ok' };
         return {
           code: -1,
           message: '未知操作'

@@ -45,6 +45,7 @@
         wx:key="_id"
         reminder="{{item}}"
         bind:takeMedicine="onTakeMedicine"
+        bind:acknowledge="onAcknowledge"
       />
     </view>
 

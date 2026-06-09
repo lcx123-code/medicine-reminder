@@ -179,7 +179,9 @@ Page({
   onSubscribeNotify: function () {
     var that = this;
     var tmplIds = [
-      'HBUcX64MIUMEnf-WPQiAuatrglxdIORe4Z03ZgNHGrg'
+      'HBUcX64MIUMEnf-WPQiAuatrglxdIORe4Z03ZgNHGrg',
+      'yWIU75GOoaaRDI0eAzBRfZb8N5jOKDtKXj2PhLQ6xps',
+      '0atsTuJOmGeeKXpCDdzMJS4-1zQh6ZPK22N0AR0SukM'
     ];
     wx.requestSubscribeMessage({
       tmplIds: tmplIds,
@@ -207,6 +209,18 @@ Page({
    */
   onCloseNotifyBanner: function () {
     this.setData({ showNotifyBanner: false });
+  },
+
+  /**
+   * 已知晓漏服提醒
+   */
+  onAcknowledge: function (e) {
+    var that = this;
+    var reminder = e.detail.reminder;
+    haptic.light();
+    api.acknowledgeReminder(reminder._id).then(function () {
+      that.loadData();
+    });
   },
 
   // ==================== TabBar 滚动隐藏 ====================

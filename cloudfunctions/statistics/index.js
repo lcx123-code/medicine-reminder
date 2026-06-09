@@ -108,6 +108,40 @@ async function getStatistics(userId, data) {
   // 计算依从率
   var adherenceRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
+  // 用 records 补充迁移误删的 completed 数据
+  var completedDates = {};
+  for (var di = 0; di < reminders.length; di++) {
+    if (reminders[di].status === 'completed') {
+      completedDates[reminders[di].medicationId + '|' + formatDate(reminders[di].scheduledTime)] = true;
+    }
+  }
+
+  var recWhere = { userId: userId, takenAt: _.gte(startDate).and(_.lte(endDate)) };
+  if (medicationId) recWhere.medicationId = medicationId;
+  var recordsRecover = await db.collection('records')
+    .where(recWhere).limit(10000).field({ medicationId: true, takenAt: true }).get();
+
+  for (var ri = 0; ri < recordsRecover.data.length; ri++) {
+    var rec = recordsRecover.data[ri];
+    var medId = rec.medicationId;
+    var recDate = formatDate(rec.takenAt);
+    if (!validMeds[medId]) continue;
+    if (completedDates[medId + '|' + recDate]) continue;
+    completedDates[medId + '|' + recDate] = true;
+
+    completed++;
+    total++;
+    if (!dailyStatsMap[recDate]) dailyStatsMap[recDate] = { date: recDate, total: 0, completed: 0 };
+    dailyStatsMap[recDate].total++;
+    dailyStatsMap[recDate].completed++;
+    if (!medicationStatsMap[medId]) medicationStatsMap[medId] = { medicationId: medId, total: 0, completed: 0 };
+    medicationStatsMap[medId].total++;
+    medicationStatsMap[medId].completed++;
+  }
+
+  // 最终依从率
+  adherenceRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
   // 转换每日统计为数组
   var dailyStats = [];
   for (var dateKey in dailyStatsMap) {

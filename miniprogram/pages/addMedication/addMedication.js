@@ -19,13 +19,15 @@ Page({
       stockEnabled: true,
       duration: 0,
       startDate: dateUtil.getToday(),
-      notes: ''
+      notes: '',
+      customDuration: ''
     },
     frequencyOptions: ['每天1次', '每天2次', '每天3次', '每周1次', '每周2次', '每周3次'],
     stockUnitOptions: dosageUtil.COMMON_UNITS,
     durationOptions: ['长期', '7天', '14天', '21天', '30天', '自定义'],
     durationValues: [0, 7, 14, 21, 30, -1],
     durationText: '长期',
+    showCustomDuration: false,
     hours: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'],
     minutes: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59'],
     hourIndex: 0,
@@ -167,14 +169,21 @@ Page({
   onSelectDuration: function (e) {
     var index = e.detail.value;
     var duration = this.data.durationValues[index];
+    var isCustom = duration === -1;
     this.setData({
       'formData.duration': duration,
-      durationText: this.data.durationOptions[index]
+      durationText: this.data.durationOptions[index],
+      showCustomDuration: isCustom,
+      'formData.customDuration': isCustom ? '' : ''
     });
   },
 
   onSelectStartDate: function (e) {
     this.setData({ 'formData.startDate': e.detail.value });
+  },
+
+  onInputCustomDuration: function (e) {
+    this.setData({ 'formData.customDuration': e.detail.value });
   },
 
   onInputNotes: function (e) {
@@ -260,7 +269,7 @@ Page({
    */
   requestSubscription: function () {
     wx.requestSubscribeMessage({
-      tmplIds: ['HBUcX64MIUMEnf-WPQiAuatrglxdIORe4Z03ZgNHGrg'],
+      tmplIds: ['HBUcX64MIUMEnf-WPQiAuatrglxdIORe4Z03ZgNHGrg', 'yWIU75GOoaaRDI0eAzBRfZb8N5jOKDtKXj2PhLQ6xps', '0atsTuJOmGeeKXpCDdzMJS4-1zQh6ZPK22N0AR0SukM'],
       success: function (res) {
         console.log('订阅消息授权结果:', res);
       },

@@ -187,7 +187,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #F56565 0%, #E53E3E 100%);
+  background: rgba(245, 101, 101, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: #fff;
   font-size: 28rpx;
   font-weight: 600;

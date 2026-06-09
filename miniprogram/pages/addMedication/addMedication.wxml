@@ -115,6 +115,18 @@
       </view>
     </view>
 
+    <!-- 自定义天数 -->
+    <view class="form-item" wx:if="{{showCustomDuration}}">
+      <text class="form-label">自定义天数</text>
+      <input 
+        class="form-input" 
+        type="number"
+        placeholder="请输入用药天数"
+        value="{{formData.customDuration}}"
+        bindinput="onInputCustomDuration"
+      />
+    </view>
+
     <!-- 开始日期 -->
     <view class="form-item" wx:if="{{formData.duration > 0}}">
       <text class="form-label">开始日期</text>
