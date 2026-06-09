@@ -56,18 +56,19 @@ async function addRecord(userId, data) {
     });
   }
 
-  // 扣减库存
-  var newStock = medication.stock - medication.numericDosage;
-  if (newStock < 0) newStock = 0;
-
-  await db.collection('medications').doc(medicationId).update({
-    data: { stock: newStock }
-  });
-
-  // 检查库存预警
+  // 扣减库存（仅启用了库存管理的药品）
   var stockWarning = false;
-  if (newStock <= medication.stockWarning) {
-    stockWarning = true;
+  if (medication.stockEnabled !== false && medication.stock > 0) {
+    var newStock = medication.stock - medication.numericDosage;
+    if (newStock < 0) newStock = 0;
+
+    await db.collection('medications').doc(medicationId).update({
+      data: { stock: newStock }
+    });
+
+    if (newStock <= medication.stockWarning) {
+      stockWarning = true;
+    }
   }
 
   return {
