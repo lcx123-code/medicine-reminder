@@ -18,11 +18,17 @@
         <text class="chart-label">依从率</text>
       </view>
       <view class="chart-ring">
-        <view class="ring-fill" style="transform: rotate({{stats.adherenceRate * 3.6 - 90}}deg)"></view>
+        <view class="ring-fill fill-{{stats.adherenceRate >= 80 ? 'good' : stats.adherenceRate >= 50 ? 'normal' : 'bad'}}" style="transform: rotate({{stats.adherenceRate * 3.6 - 90}}deg)"></view>
       </view>
       <view class="chart-status {{stats.adherenceRate >= 80 ? 'good' : stats.adherenceRate >= 50 ? 'normal' : 'bad'}}">
         <text>{{stats.adherenceRate >= 80 ? '优秀' : stats.adherenceRate >= 50 ? '一般' : '需改进'}}</text>
       </view>
+    </view>
+    <view class="ring-progress">
+      <view class="ring-bar">
+        <view class="ring-bar-fill fill-{{stats.adherenceRate >= 80 ? 'good' : stats.adherenceRate >= 50 ? 'normal' : 'bad'}}" style="width: {{stats.adherenceRate}}%"></view>
+      </view>
+      <text class="ring-bar-text">{{stats.adherenceRate}}%</text>
     </view>
     <view class="stats-summary">
       <view class="stat-item">
