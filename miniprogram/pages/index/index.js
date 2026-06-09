@@ -93,6 +93,17 @@ Page({
       if (that.data.reminders.length > 0 && !wx.getStorageSync('notifySubscribed')) {
         that.setData({ showNotifyBanner: true });
       }
+
+      // 已订阅用户自动续配额（已勾选"总是保持"，不会弹窗）
+      if (wx.getStorageSync('notifySubscribed')) {
+        wx.requestSubscribeMessage({
+          tmplIds: [
+            'HBUcX64MIUMEnf-WPQiAuatrglxdIORe4Z03ZgNHGrg',
+            'yWIU75GOoaaRDI0eAzBRfZb8N5jOKDtKXj2PhLQ6xps',
+            '0atsTuJOmGeeKXpCDdzMJS4-1zQh6ZPK22N0AR0SukM'
+          ]
+        });
+      }
     });
   },
 
