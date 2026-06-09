@@ -74,6 +74,20 @@ async function getTodayReminders(userId) {
       existingMedIds.push(reminders[i].medicationId);
   }
 
+  // 清理重复：删除已有 completed/acknowledged 同药品同时间的 pending
+  for (var i = reminders.length - 1; i >= 0; i--) {
+    if (reminders[i].status !== 'pending') continue;
+    for (var j = 0; j < reminders.length; j++) {
+      if (reminders[j].medicationId === reminders[i].medicationId &&
+          reminders[j].timeStr === reminders[i].timeStr &&
+          (reminders[j].status === 'completed' || reminders[j].status === 'acknowledged')) {
+        await db.collection('reminders').doc(reminders[i]._id).remove();
+        reminders.splice(i, 1);
+        break;
+      }
+    }
+  }
+
   // 自愈：检查并补建缺失提醒
   var medsRes = await db.collection('medications')
     .where({ userId: userId, isActive: true }).get();
@@ -87,6 +101,15 @@ async function getTodayReminders(userId) {
       if (today >= end) continue;
     }
     for (var ti = 0; ti < med.times.length; ti++) {
+      // 去重：检查是否已有同药品同时段的提醒
+      var exists = false;
+      for (var ri = 0; ri < reminders.length; ri++) {
+        if (reminders[ri].medicationId === med._id && reminders[ri].timeStr === med.times[ti]) {
+          exists = true;
+          break;
+        }
+      }
+      if (exists) continue;
       var dateStr = String(today.getFullYear()) + '-' + 
         ('0' + (today.getMonth() + 1)).slice(-2) + '-' + 
         ('0' + today.getDate()).slice(-2);
