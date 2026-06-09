@@ -42,6 +42,14 @@ async function sendDueReminders() {
       }
 
       if (!medication.isActive) {
+        // 药品已停用，删除该 ghost reminder
+        await db.collection('reminders').doc(reminder._id).remove();
+        continue;
+      }
+
+      // 验证 timeStr 仍在药品的 times 中（避免编辑删除时间后 ghost 被发送）
+      if (reminder.timeStr && medication.times && medication.times.indexOf(reminder.timeStr) === -1) {
+        await db.collection('reminders').doc(reminder._id).remove();
         continue;
       }
 

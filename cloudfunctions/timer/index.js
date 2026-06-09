@@ -127,31 +127,48 @@ async function markMissedReminders() {
   var reminders = remindersRes.data;
 
   for (var i = 0; i < reminders.length; i++) {
+    var r = reminders[i];
     try {
-      await db.collection('reminders').doc(reminders[i]._id).update({
+      // 验证 medication 仍有效（避免 ghost 被写为漏服记录）
+      var medRes = await db.collection('medications').doc(r.medicationId).get();
+      var med = medRes.data;
+      if (!med) {
+        await db.collection('reminders').doc(r._id).remove();
+        continue;
+      }
+      if (!med.isActive) {
+        await db.collection('reminders').doc(r._id).remove();
+        continue;
+      }
+      if (r.timeStr && med.times && med.times.indexOf(r.timeStr) === -1) {
+        await db.collection('reminders').doc(r._id).remove();
+        continue;
+      }
+
+      await db.collection('reminders').doc(r._id).update({
         data: { status: 'missed' }
       });
 
       // 同步写一条漏服记录到 records 集合（使记录页也能展示漏服）
       var existing = await db.collection('records')
-        .where({ reminderId: reminders[i]._id }).count();
+        .where({ reminderId: r._id }).count();
 
       if (existing.total === 0) {
         await db.collection('records').add({
           data: {
-            userId: reminders[i].userId,
-            medicationId: reminders[i].medicationId,
-            reminderId: reminders[i]._id,
-            takenAt: reminders[i].scheduledTime,
+            userId: r.userId,
+            medicationId: r.medicationId,
+            reminderId: r._id,
+            takenAt: r.scheduledTime,
             status: 'missed',
             createdAt: db.serverDate()
           }
         });
       }
 
-      console.log('标记漏服:', reminders[i]._id);
+      console.log('标记漏服:', r._id);
     } catch (err) {
-      console.error('标记漏服失败:', reminders[i]._id, err);
+      console.error('标记漏服失败:', r._id, err);
     }
   }
 }

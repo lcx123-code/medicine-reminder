@@ -131,7 +131,7 @@ async function updateMedication(userId, data) {
 
   await db.collection('reminders').where({
     medicationId: id,
-    status: 'pending',
+    status: _.in(['pending', 'sent']),
     scheduledTime: _.gte(today)
   }).remove();
 
