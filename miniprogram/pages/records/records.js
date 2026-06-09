@@ -22,7 +22,8 @@ Page({
   onLoad: function () {
     this.setData({
       selectedDate: dateUtil.getToday(),
-      weekDay: dateUtil.getWeekDay(new Date())
+      weekDay: dateUtil.getWeekDay(new Date()),
+      today: dateUtil.getToday()
     });
   },
 

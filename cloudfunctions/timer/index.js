@@ -299,6 +299,23 @@ async function markMissedReminders() {
         data: { status: 'missed' }
       });
 
+      // 同步写一条漏服记录到 records 集合（使记录页也能展示漏服）
+      var existing = await db.collection('records')
+        .where({ reminderId: reminders[i]._id }).count();
+
+      if (existing.total === 0) {
+        await db.collection('records').add({
+          data: {
+            userId: reminders[i].userId,
+            medicationId: reminders[i].medicationId,
+            reminderId: reminders[i]._id,
+            takenAt: reminders[i].scheduledTime,
+            status: 'missed',
+            createdAt: db.serverDate()
+          }
+        });
+      }
+
       console.log('标记漏服:', reminders[i]._id);
     } catch (err) {
       console.error('标记漏服失败:', reminders[i]._id, err);

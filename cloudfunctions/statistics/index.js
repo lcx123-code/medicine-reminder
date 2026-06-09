@@ -63,7 +63,7 @@ async function getStatistics(userId, data) {
   }
 
   // 在内存中计算统计数据
-  var total = reminders.length;
+  var total = 0;
   var completed = 0;
   var missed = 0;
   var pending = 0;
@@ -76,10 +76,12 @@ async function getStatistics(userId, data) {
 
     if (!validMeds[r.medicationId]) continue;
 
+    total++;
+
     // 统计状态
     if (r.status === 'completed') {
       completed++;
-    } else if (r.status === 'missed') {
+    } else if (r.status === 'missed' || r.status === 'acknowledged') {
       missed++;
     } else {
       pending++;
