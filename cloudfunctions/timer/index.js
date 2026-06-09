@@ -31,10 +31,13 @@ async function checkStockWarnings() {
 
   var medications = medicationsRes.data;
 
+  var todayStr = helper.formatDate(new Date());
+
   for (var i = 0; i < medications.length; i++) {
     var med = medications[i];
 
-    if (med.stock <= med.stockWarning) {
+    // 每天只发一次（今天已发过的跳过）
+    if (med.stock <= med.stockWarning && med.stockWarningSentDate !== todayStr) {
       try {
         await accessToken.sendSubscribeMessage(
           med.userId,
@@ -46,6 +49,11 @@ async function checkStockWarnings() {
             short_thing18: { value: med.stockUnit || '片' }
           }
         );
+
+        // 标记今天已发送
+        await db.collection('medications').doc(med._id).update({
+          data: { stockWarningSentDate: todayStr }
+        });
 
         console.log('库存预警已发送:', med.name, '剩余:', med.stock);
       } catch (err) {

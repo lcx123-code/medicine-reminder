@@ -84,6 +84,7 @@ async function addMedication(userId, data) {
     startDate: data.startDate || helper.formatDate(new Date()),
     timezoneOffset: data.timezoneOffset || new Date().getTimezoneOffset(),
     isActive: true,
+    stockWarningSentDate: '',
     createdAt: db.serverDate()
   };
 
@@ -122,6 +123,7 @@ async function updateMedication(userId, data) {
     data.numericDosage = parseNumericDosage(data.dosage);
   }
 
+  data.stockWarningSentDate = '';
   data.updatedAt = db.serverDate();
 
   await db.collection('medications').doc(id).update({ data: data });

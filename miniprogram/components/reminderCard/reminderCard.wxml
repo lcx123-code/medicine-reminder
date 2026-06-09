@@ -13,7 +13,7 @@
   <view class="card-right">
     <view 
       class="status-btn {{reminder.status}}" 
-      wx:if="{{reminder.status === 'pending'}}"
+      wx:if="{{reminder.status === 'pending' || reminder.status === 'sent'}}"
       bind:tap="onTapTake"
     >
       <text>服用</text>
