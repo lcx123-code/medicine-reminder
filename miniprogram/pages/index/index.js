@@ -39,6 +39,28 @@ Page({
    * 页面显示（从后台进入前台）
    */
   onShow: function () {
+    var that = this;
+    // 自动触发 cleanup（仅一次）
+    try {
+      var cleanupDone = wx.getStorageSync('CLEANUP_DONE');
+      if (!cleanupDone) {
+        wx.cloud.callFunction({
+          name: 'cleanup',
+          data: { action: 'run' },
+          success: function (res) {
+            console.log('数据清理完成:', JSON.stringify(res));
+            wx.setStorageSync('CLEANUP_DONE', true);
+          },
+          fail: function (err) {
+            console.error('数据清理失败:', err);
+            // 不阻塞用户，失败就跳过
+          }
+        });
+      }
+    } catch (e) {
+      console.error('cleanup 触发异常:', e);
+    }
+
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 });
     }
