@@ -103,7 +103,7 @@
           </view>
 
           <view class="card-footer">
-            <view class="stock-info" wx:if="{{item.stockEnabled !== false}}">
+            <view class="stock-info" wx:if="{{item.stockEnabled !== false && item.stock > 0}}">
               <text class="stock-label">库存</text>
               <text class="stock-value {{item.stock <= item.stockWarning ? 'warning' : ''}}">
                 {{item.stock}} {{item.stockUnit}}
