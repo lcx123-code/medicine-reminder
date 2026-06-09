@@ -16,6 +16,16 @@ async function addRecord(userId, data) {
   var medicationId = data.medicationId;
   var reminderId = data.reminderId;
 
+  // 防重：同一提醒不可重复记录已服
+  if (reminderId) {
+    var existing = await db.collection('records')
+      .where({ reminderId: reminderId, status: 'taken' }).count();
+    if (existing.total > 0) {
+      console.log('addRecord 重复调用，已跳过:', reminderId);
+      return { code: 0, data: { duplicate: true } };
+    }
+  }
+
   // 获取药品信息
   var medicationRes = await db.collection('medications').doc(medicationId).get();
   var medication = medicationRes.data;
@@ -121,18 +131,17 @@ async function getRecords(userId, data) {
     }
   }
 
-  // 组合数据（跳过已删除药品的记录）
+  // 组合数据
   var result = [];
   for (var k = 0; k < records.length; k++) {
     var record = records[k];
-    var medication = medications[record.medicationId];
-    if (!medication) continue;
+    var medication = medications[record.medicationId] || null;
 
     result.push({
       _id: record._id,
       medicationId: record.medicationId,
-      medicationName: medication.name,
-      dosage: medication.dosage || '',
+      medicationName: medication ? medication.name : '未知药品',
+      dosage: medication ? medication.dosage : '',
       takenAt: record.takenAt,
       status: record.status
     });
