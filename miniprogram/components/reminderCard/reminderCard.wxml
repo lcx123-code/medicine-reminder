@@ -23,8 +23,13 @@
     </view>
     <view class="missed-group" wx:elif="{{reminder.status === 'missed'}}">
       <text class="missed-text">漏服</text>
-      <view class="acknowledge-btn" bind:tap="onTapAcknowledge">
-        <text>已知晓</text>
+      <view class="missed-actions">
+        <view class="late-take-btn" bind:tap="onTapTake">
+          <text>漏了但是吃了</text>
+        </view>
+        <view class="acknowledge-btn" bind:tap="onTapAcknowledge">
+          <text>漏服没吃</text>
+        </view>
       </view>
     </view>
     <view class="status-btn acknowledged" wx:else>
