@@ -38,13 +38,16 @@ Page({
   },
 
   /**
-   * 页面显示
+   * 页面显示（缓存30秒内不重复加载）
    */
   onShow: function () {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 1 });
     }
-    this.loadMedications();
+    var cached = wx.getStorageSync('medications_cache');
+    if (!cached || !cached.data || !cached.time || Date.now() - cached.time > 30000) {
+      this.loadMedications();
+    }
   },
 
   /**
@@ -63,7 +66,7 @@ Page({
     var that = this;
     that.setData({ loading: true });
 
-    return api.getMedications().then(function (res) {
+    return api.refreshMedicationsCache().then(function (res) {
       if (res.code === 0) {
         var medications = that.formatMedications(res.data);
         that.setData({
@@ -210,6 +213,7 @@ Page({
    */
   onAdd: function () {
     haptic.light();
+    api.clearMedicationsCache();
     wx.navigateTo({
       url: '/pages/addMedication/addMedication'
     });
@@ -220,6 +224,7 @@ Page({
    */
   onEdit: function (e) {
     haptic.light();
+    api.clearMedicationsCache();
     var id = e.currentTarget.dataset.id;
     wx.navigateTo({
       url: '/pages/addMedication/addMedication?id=' + id

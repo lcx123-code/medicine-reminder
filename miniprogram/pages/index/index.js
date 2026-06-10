@@ -77,18 +77,18 @@ Page({
   },
 
   /**
-   * 加载页面数据
-   * 并行加载提醒列表和库存预警
+   * 加载页面数据（分步加载）
+   * 第一步：加载提醒列表 → 立刻隐藏 loading
+   * 第二步：静默加载库存预警（走缓存）
    */
   loadData: function () {
     var that = this;
     that.setData({ loading: true });
 
-    return Promise.all([
-      that.loadReminders(),
-      that.loadStockWarnings()
-    ]).then(function () {
+    // 第一步：先加载提醒
+    return that.loadReminders().then(function () {
       that.setData({ loading: false });
+
       // 有提醒时显示通知授权提示条
       if (that.data.reminders.length > 0 && !wx.getStorageSync('notifySubscribed')) {
         that.setData({ showNotifyBanner: true });
@@ -104,6 +104,9 @@ Page({
           ]
         });
       }
+
+      // 第二步：静默加载库存预警（不阻塞）
+      that.loadStockWarnings();
     });
   },
 
@@ -122,12 +125,12 @@ Page({
   },
 
   /**
-   * 加载库存预警
+   * 加载库存预警（走缓存）
    * 筛选出库存低于预警值的药品
    */
   loadStockWarnings: function () {
     var that = this;
-    return api.getMedications().then(function (res) {
+    return api.getMedicationsCached().then(function (res) {
       if (res.code === 0) {
         // 筛选条件：启用中 且 库存 <= 预警值 且 库存 > 0 且 开启了库存管理
         var warnings = res.data.filter(function (med) {

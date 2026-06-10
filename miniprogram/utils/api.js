@@ -66,6 +66,39 @@ function getMedications() {
 }
 
 /**
+ * 带缓存的药品列表（30秒内读缓存）
+ */
+function getMedicationsCached() {
+  var cached = wx.getStorageSync('medications_cache');
+  if (cached && cached.data && cached.time && Date.now() - cached.time < 30000) {
+    return Promise.resolve({ code: 0, data: cached.data });
+  }
+  return refreshMedicationsCache();
+}
+
+/**
+ * 静默刷新药品列表缓存
+ */
+function refreshMedicationsCache() {
+  return getMedications().then(function (res) {
+    if (res.code === 0) {
+      wx.setStorageSync('medications_cache', {
+        data: res.data,
+        time: Date.now()
+      });
+    }
+    return res;
+  });
+}
+
+/**
+ * 清除药品列表缓存
+ */
+function clearMedicationsCache() {
+  wx.removeStorageSync('medications_cache');
+}
+
+/**
  * 创建提醒
  */
 function createReminder(data) {
@@ -126,6 +159,9 @@ module.exports = {
   updateMedication: updateMedication,
   deleteMedication: deleteMedication,
   getMedications: getMedications,
+  getMedicationsCached: getMedicationsCached,
+  refreshMedicationsCache: refreshMedicationsCache,
+  clearMedicationsCache: clearMedicationsCache,
   createReminder: createReminder,
   getTodayReminders: getTodayReminders,
   addRecord: addRecord,
