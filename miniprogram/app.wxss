@@ -88,6 +88,24 @@ page {
   box-shadow: 0 8rpx 24rpx rgba(239, 68, 68, 0.35);
 }
 
+/* 空状态图标（多页面复用） */
+.empty-icon-wrapper {
+  width: 160rpx;
+  height: 160rpx;
+  background: linear-gradient(135deg, #EDF2F7 0%, #E2E8F0 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.empty-icon-text {
+  font-size: 64rpx;
+  color: #A0AEC0;
+  font-weight: 300;
+}
+
 /* 文本样式 */
 .text-primary { color: #6366F1; }
 .text-success { color: #10B981; }

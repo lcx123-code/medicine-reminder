@@ -42,7 +42,9 @@
 
   <!-- 空状态 -->
   <view class="empty-state" wx:else>
-    <image class="empty-icon" src="/images/empty.png" mode="aspectFit"></image>
+    <view class="empty-icon-wrapper">
+      <text class="empty-icon-text">0</text>
+    </view>
     <text class="empty-text">暂无服药记录</text>
     <text class="empty-subtext">该日期没有服药记录</text>
   </view>

@@ -64,7 +64,7 @@
     <view class="form-item">
       <view class="form-label-row">
         <text class="form-label">库存管理</text>
-        <switch checked="{{formData.stockEnabled}}" bindchange="onToggleStock" color="#667EEA" />
+        <switch checked="{{formData.stockEnabled}}" bindchange="onToggleStock" color="#6366F1" />
       </view>
     </view>
 

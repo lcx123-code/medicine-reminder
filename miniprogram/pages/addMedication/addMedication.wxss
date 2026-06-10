@@ -2,7 +2,7 @@
 .container {
   padding: 24rpx;
   min-height: 100vh;
-  background: linear-gradient(180deg, #E8F4FD 0%, #F5F7FA 100%);
+  background: linear-gradient(180deg, #EEF2FF 0%, #F8FAFC 50%, #F1F5F9 100%);
   padding-bottom: 150rpx;
 }
 
@@ -10,7 +10,8 @@
   background: #fff;
   border-radius: 28rpx;
   padding: 32rpx;
-  box-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04), 0 8rpx 32rpx rgba(0, 0, 0, 0.03);
+  border: 1rpx solid rgba(226, 232, 240, 0.6);
 }
 
 .form-item {
@@ -43,9 +44,9 @@
 }
 
 .form-input:focus {
-  border-color: #667EEA;
+  border-color: #6366F1;
   background: #fff;
-  box-shadow: 0 0 0 4rpx rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 4rpx rgba(99, 102, 241, 0.1);
 }
 
 .form-picker {
@@ -62,7 +63,7 @@
 }
 
 .form-picker:active {
-  border-color: #667EEA;
+  border-color: #6366F1;
 }
 
 .picker-arrow {
@@ -151,7 +152,7 @@
   left: 48rpx;
   right: 48rpx;
   height: 104rpx;
-  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%);
   border-radius: 52rpx;
   display: flex;
   align-items: center;
@@ -159,14 +160,14 @@
   font-size: 34rpx;
   font-weight: 600;
   color: #fff;
-  box-shadow: 0 12rpx 40rpx rgba(102, 126, 234, 0.45);
+  box-shadow: 0 12rpx 40rpx rgba(99, 102, 241, 0.45);
   transition: all 0.3s ease;
   z-index: 100;
 }
 
 .save-btn:active {
   transform: scale(0.98);
-  box-shadow: 0 6rpx 20rpx rgba(102, 126, 234, 0.35);
+  box-shadow: 0 6rpx 20rpx rgba(99, 102, 241, 0.35);
 }
 
 /* 文本域样式 */
@@ -224,7 +225,7 @@
 }
 
 .time-add-btn {
-  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%);
   border-radius: 16rpx;
   padding: 16rpx 28rpx;
   font-size: 28rpx;
