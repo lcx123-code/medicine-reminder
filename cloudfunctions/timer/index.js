@@ -123,11 +123,13 @@ async function markMissedReminders() {
 
   // 获取已发送但超过1小时未处理的提醒
   // 新数据看 sentTime，旧数据（无 sentTime）用 scheduledTime 兜底
+  // 再加 pending 兜底：timer 有配额但没跑到的也标为漏服
   var remindersRes = await db.collection('reminders')
     .where(_.or([
       { status: 'sent', sentTime: _.lte(oneHourAgo) },
       { status: 'sent', sentTime: _.exists(false), scheduledTime: _.lte(oneHourAgo) },
-      { status: 'sent', sentTime: null, scheduledTime: _.lte(oneHourAgo) }
+      { status: 'sent', sentTime: null, scheduledTime: _.lte(oneHourAgo) },
+      { status: 'pending', scheduledTime: _.lte(oneHourAgo) }
     ]))
     .limit(100)
     .get();
