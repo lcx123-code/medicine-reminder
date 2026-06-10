@@ -2,7 +2,7 @@
 .container {
   padding: 24rpx;
   min-height: 100vh;
-  background: linear-gradient(180deg, #EEF2FF 0%, #F8FAFC 50%, #F1F5F9 100%);
+  background: linear-gradient(180deg, #EFF6FF 0%, #F8FAFC 50%, #F1F5F9 100%);
 }
 
 /* 周期选择 */
@@ -30,10 +30,10 @@
 }
 
 .period-tab.active {
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%);
+  background: linear-gradient(135deg, #93C5FD 0%, #3B82F6 50%, #60A5FA 100%);
   color: #fff;
   font-weight: 700;
-  box-shadow: 0 6rpx 24rpx rgba(99, 102, 241, 0.35);
+  box-shadow: 0 6rpx 24rpx rgba(59, 130, 246, 0.35);
   position: relative;
   overflow: hidden;
 }
@@ -68,7 +68,7 @@
   left: 0;
   right: 0;
   height: 6rpx;
-  background: linear-gradient(90deg, #6366F1, #A78BFA, #6366F1);
+  background: linear-gradient(90deg, #93C5FD, #3B82F6, #93C5FD);
 }
 
 .card-title {
@@ -77,7 +77,7 @@
   color: #1E293B;
   margin-bottom: 36rpx;
   padding-left: 20rpx;
-  border-left: 8rpx solid #6366F1;
+  border-left: 8rpx solid #3B82F6;
   position: relative;
   z-index: 1;
 }
@@ -105,7 +105,7 @@
 .chart-value {
   font-size: 72rpx;
   font-weight: 800;
-  color: #6366F1;
+  color: #3B82F6;
 }
 
 .chart-label {
@@ -276,10 +276,10 @@
   position: absolute;
   bottom: 0;
   width: 100%;
-  background: linear-gradient(180deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%);
+  background: linear-gradient(180deg, #93C5FD 0%, #3B82F6 50%, #60A5FA 100%);
   border-radius: 14rpx;
   transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 -4rpx 16rpx rgba(99, 102, 241, 0.25);
+  box-shadow: 0 -4rpx 16rpx rgba(59, 130, 246, 0.25);
 }
 
 .bar-label {
@@ -356,10 +356,10 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%);
+  background: linear-gradient(90deg, #93C5FD 0%, #3B82F6 50%, #60A5FA 100%);
   border-radius: 10rpx;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2rpx 8rpx rgba(99, 102, 241, 0.25);
+  box-shadow: 0 2rpx 8rpx rgba(59, 130, 246, 0.25);
 }
 
 .progress-text {
@@ -392,7 +392,7 @@
   left: 0;
   right: 0;
   height: 6rpx;
-  background: linear-gradient(90deg, #6366F1, #A78BFA, #6366F1);
+  background: linear-gradient(90deg, #93C5FD, #3B82F6, #93C5FD);
 }
 
 .empty-text {
