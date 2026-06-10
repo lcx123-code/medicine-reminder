@@ -278,7 +278,13 @@ exports.main = async (event, context) => {
             .where({ medicationId: event.data.id, status: 'pending' })
             .update({ data: { status: 'cancelled' } });
         } else {
-          // 启用时检查今日是否有提醒，无则创建
+          // 删掉停用时产生的 cancelled 提醒
+          await db.collection('reminders').where({
+            medicationId: event.data.id,
+            status: 'cancelled'
+          }).remove();
+
+          // 检查今日是否有提醒，无则创建
           var todayStart = new Date();
           todayStart.setHours(0, 0, 0, 0);
           var todayEnd = new Date(todayStart);
