@@ -38,14 +38,8 @@ async function createRemindersForMedication(userId, medicationId, times, startDa
   var today = new Date();
   var todayStr = helper.formatDate(today);
 
-  // 计算结束日期
-  var endDate = null;
-  if (duration > 0) {
-    endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + duration);
-  }
+  console.log('创建提醒: medicationId=', medicationId, 'times=', JSON.stringify(times));
 
-  // 为今天创建提醒（无论时间是否已过，都创建，方便查看今日全部用药计划）
   for (var i = 0; i < times.length; i++) {
     var scheduledTime = helper.calcScheduledTime(todayStr, times[i], timezoneOffset);
 
@@ -59,6 +53,17 @@ async function createRemindersForMedication(userId, medicationId, times, startDa
         createdAt: db.serverDate()
       }
     });
+
+    console.log('已创建提醒:', times[i]);
+  }
+
+  // 写后验证
+  var countRes = await db.collection('reminders')
+    .where({ medicationId: medicationId, status: 'pending' })
+    .count();
+  console.log('验证: 共', countRes.total, '条, 期望', times.length, '条');
+  if (countRes.total !== times.length) {
+    console.error('创建数量不匹配! medicationId=', medicationId);
   }
 }
 

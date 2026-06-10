@@ -77,6 +77,9 @@
               <view class="action-btn toggle {{item.isActive ? 'active' : 'inactive'}}" bind:tap="onToggleStatus" data-id="{{item._id}}" data-active="{{item.isActive}}">
                 <text>{{item.isActive ? '停用' : '启用'}}</text>
               </view>
+              <view class="action-btn duplicate" bind:tap="onDuplicate" data-id="{{item._id}}">
+                <text>复制</text>
+              </view>
               <view class="action-btn edit" bind:tap="onEdit" data-id="{{item._id}}">
                 <text>编辑</text>
               </view>

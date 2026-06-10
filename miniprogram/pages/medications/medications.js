@@ -266,6 +266,58 @@ Page({
   },
 
   /**
+   * 复制药品
+   */
+  onDuplicate: function (e) {
+    var that = this;
+    var id = e.currentTarget.dataset.id;
+    haptic.light();
+
+    // 从列表中找到该药品
+    var meds = that.data.medications;
+    var med = null;
+    for (var i = 0; i < meds.length; i++) {
+      if (meds[i]._id === id) { med = meds[i]; break; }
+    }
+    if (!med) return;
+
+    wx.showModal({
+      title: '确认复制',
+      content: '将复制药品"' + med.name + '"的提醒时间和设置',
+      success: function (res) {
+        if (res.confirm) {
+          wx.showLoading({ title: '复制中...' });
+          api.addMedication({
+            name: med.name + '(副本)',
+            dosage: med.dosage,
+            frequency: med.frequency,
+            times: med.times || [],
+            stockEnabled: med.stock ? parseFloat(med.stock) > 0 : false,
+            stock: med.stock || 0,
+            stockUnit: med.stockUnit || '片',
+            stockWarning: med.stockWarning || 10,
+            duration: med.duration || 0,
+            startDate: dateUtil.getToday(),
+            timezoneOffset: new Date().getTimezoneOffset()
+          }).then(function (res) {
+            wx.hideLoading();
+            if (res.code === 0) {
+              haptic.heavy();
+              wx.showToast({ title: '复制成功', icon: 'success' });
+              that.loadMedications();
+            } else {
+              errorHandler.handle(res, '复制失败');
+            }
+          }).catch(function (err) {
+            wx.hideLoading();
+            errorHandler.handleCloudError(err, '复制药品');
+          });
+        }
+      }
+    });
+  },
+
+  /**
    * 切换启用/停用状态
    */
   onToggleStatus: function (e) {
