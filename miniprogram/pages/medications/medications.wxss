@@ -279,6 +279,11 @@
   color: #2B6CB0;
 }
 
+.action-btn.duplicate {
+  background: linear-gradient(135deg, #E9D8FD 0%, #D6BCFA 100%);
+  color: #6B46C1;
+}
+
 .action-btn.delete {
   background: linear-gradient(135deg, #FED7D7 0%, #FEB2B2 100%);
   color: #C53030;

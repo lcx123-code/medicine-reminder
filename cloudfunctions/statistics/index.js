@@ -89,7 +89,7 @@ async function getStatistics(userId, data) {
       completed++;
     } else if (r.status === 'missed' || r.status === 'acknowledged') {
       missed++;
-    } else {
+    } else if (r.status === 'pending') {
       pending++;
     }
 
